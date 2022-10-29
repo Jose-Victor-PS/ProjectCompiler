@@ -10,6 +10,6 @@ public enum SyntaxKind{
   CloseParenthesisToken,
   ParenthesisExpression,
   BadToken,
-  NumberExpression,
+  LiteralExpression,
   BinaryExpression
 }
