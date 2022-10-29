@@ -1,43 +1,41 @@
 import java.io.Console;
+import java.util.ArrayList;
 
 class Main {
   public static void main(String[] args) {
 
     while(true){
-      System.out.println("> ");
       Console csnl = System.console();
       String line;
       if(csnl != null) line = csnl.readLine();
-      else line = "(1 + 2 * 3";
+      else line = "-1 * 2";
       if(line == null || StringManipulation.IsNullOrWhitespace(line)) return;
 
       SyntaxTree syntaxTree = SyntaxTree.Parse(line);
 
-      PrettyPrint(syntaxTree.getRoot());
+      SyntaxTreePrint(syntaxTree);
 
       if(!syntaxTree.getDiagnostics().isEmpty()){
         for(String diagnostic : syntaxTree.getDiagnostics()){
           System.out.println(diagnostic);
         }
       }
-
-//      Lexer lexer = new Lexer(line);
-//      while(true){
-//        SyntaxToken token = lexer.NextToken();
-//        if(token.getKind() == SyntaxKind.EndOfFileToken) break;
-//      }
       break;
     }
 
   }
 
-  public static void PrettyPrint(SyntaxNode node){
+  public static void SyntaxTreePrint(SyntaxTree tree){
+    ExpressionSyntax root = tree.getRoot();
     String indent = "";
-    PrettyPrint(node, indent);
+    SyntaxTreePrint(root, indent, true);
   }
 
-  public static void PrettyPrint(SyntaxNode node, String indent){
+  public static void SyntaxTreePrint(SyntaxNode node, String indent, boolean isLast){
+    String marker = isLast ? "└──" : "├──";
+
     System.out.print(indent);
+    System.out.print(marker);
     System.out.print(node.getKind());
 
     if (node instanceof SyntaxToken && ((SyntaxToken) node).getValue() != null){
@@ -47,8 +45,10 @@ class Main {
 
     System.out.println();
 
-    indent += "    ";
+    indent += isLast ? "    " : "│   ";
 
-    for(SyntaxNode child : node.getChildren()) PrettyPrint(child, indent);
+    isLast = node.getChildren().size() == 0;
+
+    for(SyntaxNode child : node.getChildren()) SyntaxTreePrint(child, indent, isLast);
   }
 }

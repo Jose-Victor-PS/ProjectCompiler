@@ -29,7 +29,7 @@ public class Lexer{
     _position++;
   }
   
-  public SyntaxToken NextToken(){
+  public SyntaxToken Lex(){
     // Numbers
     // Operators
     // Whitespaces
@@ -65,21 +65,22 @@ public class Lexer{
       return new SyntaxToken(SyntaxKind.WhitespaceToken, start, text, null);
     }
 
-    if(current() == '+'){
-      return new SyntaxToken(SyntaxKind.PlusToken, _position++, "+", null);
+    switch (current()) {
+      case '+':
+        return new SyntaxToken(SyntaxKind.PlusToken, _position++, "+", null);
+      case '-':
+        return new SyntaxToken(SyntaxKind.MinusToken, _position++, "-", null);
+      case '*':
+        return new SyntaxToken(SyntaxKind.StarToken, _position++, "*", null);
+      case '/':
+        return new SyntaxToken(SyntaxKind.SlashToken, _position++, "/", null);
+      case '(':
+        return new SyntaxToken(SyntaxKind.OpenParenthesisToken, _position++, "(", null);
+      case ')':
+        return new SyntaxToken(SyntaxKind.CloseParenthesisToken, _position++, ")", null);
+      default:
+        _diagnostics.add(String.format("ERROR: bad character: %s", current()));
+        return new SyntaxToken(SyntaxKind.BadToken, _position++, _text.substring(_position - 1, _position), null);
     }
-    else if (current() == '-')
-      return new SyntaxToken(SyntaxKind.MinusToken, _position++, "-", null);
-    else if (current() == '*')
-      return new SyntaxToken(SyntaxKind.StarToken, _position++, "*", null);
-    else if (current() == '/')
-      return new SyntaxToken(SyntaxKind.SlashToken, _position++, "/", null);
-    else if (current() == '(')
-      return new SyntaxToken(SyntaxKind.OpenParenthesisToken, _position++, "(", null);
-    else if (current() == ')')
-      return new SyntaxToken(SyntaxKind.CloseParenthesisToken, _position++, ")", null);
-
-    _diagnostics.add(String.format("ERROR: bad character: %s", current()));
-    return new SyntaxToken(SyntaxKind.BadToken, _position++, _text.substring(_position - 1, _position), null);
   }
 }

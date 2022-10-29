@@ -15,7 +15,7 @@ public class Parser{
     Lexer lexer = new Lexer(text);
     SyntaxToken token;
     do{
-      token = lexer.NextToken();
+      token = lexer.Lex();
 
       if(token.getKind() != SyntaxKind.WhitespaceToken &&
          token.getKind() != SyntaxKind.BadToken){
@@ -49,44 +49,41 @@ public class Parser{
     return new SyntaxToken(kind, current().getPosition(), null, null);
   }
 
-  private ExpressionSyntax ParseExpression(){
-    return ParseTerm();
+  private ExpressionSyntax ParseExpression(int parentPrecedence){
+    ExpressionSyntax left;
+    int unaryPrecedence = SyntaxFacts.getUnaryOperatorPrecedence(current().getKind());
+    if (unaryPrecedence != 0 && unaryPrecedence > parentPrecedence){
+      SyntaxToken operatorToken = nextToken();
+      ExpressionSyntax operand = parsePrimaryExpression();
+      left = new UnaryExpressionSyntax(operatorToken, operand);
+    }
+    else{
+      left = parsePrimaryExpression();
+    }
+
+    while (true){
+      int precedence = SyntaxFacts.getBinaryOperatorPrecedence(current().getKind());
+      if(precedence == 0 || precedence <= parentPrecedence){
+        break;
+      }
+      SyntaxToken operatorToken = nextToken();
+      ExpressionSyntax right = ParseExpression(precedence);
+      left = new BinaryExpressionSyntax(left, operatorToken, right);
+    }
+
+    return left;
   }
 
   public SyntaxTree Parse(){
-    ExpressionSyntax expression = ParseExpression();
+    ExpressionSyntax expression = ParseExpression(0);
     SyntaxToken endOfFileToken = match(SyntaxKind.EndOfFileToken);
     return new SyntaxTree(_diagnostics, expression, endOfFileToken);
-  }
-
-  private ExpressionSyntax ParseTerm(){
-    ExpressionSyntax left = ParseFactor();
-
-    while(current().getKind() == SyntaxKind.PlusToken || current().getKind() == SyntaxKind.MinusToken){
-      SyntaxToken operatorToken = nextToken();
-      ExpressionSyntax right = ParseFactor();
-      left = new BinaryExpressionSyntax(left, operatorToken, right);
-    }
-
-    return left;
-  }
-
-  private ExpressionSyntax ParseFactor(){
-    ExpressionSyntax left = parsePrimaryExpression();
-
-    while(current().getKind() == SyntaxKind.SlashToken || current().getKind() == SyntaxKind.StarToken){
-      SyntaxToken operatorToken = nextToken();
-      ExpressionSyntax right = parsePrimaryExpression();
-      left = new BinaryExpressionSyntax(left, operatorToken, right);
-    }
-
-    return left;
   }
 
   private ExpressionSyntax parsePrimaryExpression(){
     if(current().getKind() == SyntaxKind.OpenParenthesisToken){
       SyntaxToken left = nextToken();
-      ExpressionSyntax expression = ParseExpression();
+      ExpressionSyntax expression = ParseExpression(0);
       SyntaxToken right = match(SyntaxKind.CloseParenthesisToken);
       return new ParenthesisExpressionSyntax(left, expression, right);
     }
