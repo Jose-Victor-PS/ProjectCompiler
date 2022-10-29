@@ -1,3 +1,6 @@
+import java.util.List;
+import java.util.ArrayList;
+
 public class SyntaxToken extends SyntaxNode{
   private SyntaxKind _kind;
   private int _position;
@@ -11,6 +14,7 @@ public class SyntaxToken extends SyntaxNode{
     _value = value;
   }
 
+  @Override
   public SyntaxKind getKind(){
     return _kind;
   }
@@ -27,7 +31,8 @@ public class SyntaxToken extends SyntaxNode{
     return _value;
   }
 
-  public List<SyntaxNode> getChildren(){
+  @Override
+  public ArrayList<SyntaxNode> getChildren(){
     return new ArrayList<SyntaxNode>();
   }
 }

@@ -1,6 +1,9 @@
+import java.util.ArrayList;
+
 public class Lexer{
-  private String _text;
+  private final String _text;
   private int _position;
+  private ArrayList<String> _diagnostics = new ArrayList<>();
 
   public Lexer(String text){
     _text = text;
@@ -8,6 +11,9 @@ public class Lexer{
 
   public String getText(){
     return _text;
+  }
+  public ArrayList<String> getDiagnostics(){
+    return _diagnostics;
   }
 
   private char current(){
@@ -37,13 +43,13 @@ public class Lexer{
 
       while(Character.isDigit(current())) next();
 
-      int length = _position - start;
-      String text = _text.substring(start, length);
+      String text = _text.substring(start, _position);
 
+      Object value = null;
       try {
-        Object value = Integer.parseInt(text);
-      } catch (NumberFormatException e) {
-        Object value = null;
+        value = Integer.parseInt(text);
+      } catch (Exception e){
+        _diagnostics.add(String.format("ERROR: The number %s cannot be represented by Integer32", _text));
       }
 
       return new SyntaxToken(SyntaxKind.NumberToken, start, text, value);
@@ -54,8 +60,7 @@ public class Lexer{
 
       while(Character.isWhitespace(current())) next();
 
-      int length = _position - start;
-      String text = _text.substring(start, length);
+      String text = _text.substring(start, _position);
 
       return new SyntaxToken(SyntaxKind.WhitespaceToken, start, text, null);
     }
@@ -73,5 +78,8 @@ public class Lexer{
       return new SyntaxToken(SyntaxKind.OpenParenthesisToken, _position++, "(", null);
     else if (current() == ')')
       return new SyntaxToken(SyntaxKind.CloseParenthesisToken, _position++, ")", null);
+
+    _diagnostics.add(String.format("ERROR: bad character: %s", current()));
+    return new SyntaxToken(SyntaxKind.BadToken, _position++, _text.substring(_position - 1, _position), null);
   }
 }

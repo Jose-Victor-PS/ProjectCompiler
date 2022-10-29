@@ -8,6 +8,7 @@ public enum SyntaxKind{
   SlashToken,
   OpenParenthesisToken,
   CloseParenthesisToken,
+  ParenthesisExpression,
   BadToken,
   NumberExpression,
   BinaryExpression

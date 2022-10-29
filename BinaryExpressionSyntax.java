@@ -1,3 +1,7 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class BinaryExpressionSyntax extends ExpressionSyntax{
   private ExpressionSyntax _left;
   private SyntaxNode _operator;
@@ -21,11 +25,13 @@ public class BinaryExpressionSyntax extends ExpressionSyntax{
     return _operator;
   }
 
+  @Override
   public SyntaxKind getKind(){
     return SyntaxKind.BinaryExpression;
   }
 
-  public List<SyntaxToken> getChildren(){
-    return new List<SyntaxToken>([_left, _operator, _right]);
+  @Override
+  public ArrayList<SyntaxNode> getChildren(){
+    return new ArrayList<SyntaxNode>(Arrays.asList(_left, _operator, _right));
   }
 }
