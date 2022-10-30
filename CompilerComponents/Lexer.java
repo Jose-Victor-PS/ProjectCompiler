@@ -105,6 +105,8 @@ public class Lexer{
         return new SyntaxToken(SyntaxKind.NegationToken, _position++, "!", null);
       case '<':
         return new SyntaxToken(SyntaxKind.CompareToken, _position++, "<", null);
+      case '=':
+        return new SyntaxToken(SyntaxKind.EqualsToken, _position++, "=", null);
       case '&':
         if (lookAhead() == '&'){
           _position += 2;

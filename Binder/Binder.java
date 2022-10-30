@@ -1,17 +1,35 @@
 package Binder;
 
 import Syntax.*;
-
-import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Binder {
     private ArrayList<String> _diagnostics = new ArrayList<>();
+    private HashMap<VariableSymbol, Object> _variables;
+
+    public Binder(HashMap<VariableSymbol, Object> variables){
+        _variables = variables;
+    }
+
+    public ArrayList<String> getDiagnostics(){
+        return _diagnostics;
+    }
+
+    public HashMap<VariableSymbol, Object> getVariables(){
+        return _variables;
+    }
 
     public BoundExpression BindExpression(ExpressionSyntax syntax) throws Exception{
         switch (syntax.getKind()) {
+            case ParenthesisExpression:
+                return BindParenthesisExpression((ParenthesisExpressionSyntax)syntax);
             case LiteralExpression:
                 return BindLiteralExpression((LiteralExpressionSyntax) syntax);
+            case NameExpression:
+                return BindNameExpression((NameExpressionSyntax)syntax);
+            case AssignmentExpression:
+                return BindAssignmentExpression((AssignmentExpressionSyntax)syntax);
             case UnaryExpression:
                 return BindUnaryExpression((UnaryExpressionSyntax) syntax);
             case BinaryExpression:
@@ -21,8 +39,60 @@ public class Binder {
         }
     }
 
-    public ArrayList<String> getDiagnostics(){
-        return _diagnostics;
+    private BoundExpression BindParenthesisExpression(ParenthesisExpressionSyntax syntax) throws Exception{
+        return BindExpression(syntax.getExpression());
+    }
+
+    private BoundExpression BindLiteralExpression(LiteralExpressionSyntax syntax) {
+        boolean bool_value;
+        int int_value;
+        if(syntax.getToken().getKind() == SyntaxKind.NumberToken){
+            try{
+                int_value = (int)syntax.getValue();
+            } catch (Exception e){
+                int_value = 0;
+            }
+            new BoundLiteralExpression(int_value);
+        }
+        else if(syntax.getToken().getKind() == SyntaxKind.FalseKeyword) {
+            bool_value = false;
+            return new BoundLiteralExpression(bool_value);
+        }
+
+
+        else if(syntax.getToken().getKind() == SyntaxKind.TrueKeyword) {
+            bool_value = true;
+            return new BoundLiteralExpression(bool_value);
+        }
+
+        return new BoundLiteralExpression(0);
+    }
+
+    private BoundExpression BindNameExpression(NameExpressionSyntax syntax) {
+        String name = syntax.getIdentifierToken().getText();
+        VariableSymbol variable = _variables.keySet().stream().filter(
+                (var) -> var.getName().equals(name)
+        ).findFirst().orElse(null);
+        if(variable == null){
+            _diagnostics.add(String.format("Varialbe %s is undefined", name));
+            return new BoundLiteralExpression(0);
+        }
+        Class<?> type = _variables.get(variable) == null ? Object.class : _variables.get(variable).getClass();
+        return new BoundVariableExpression(variable);
+    }
+
+    private BoundExpression BindAssignmentExpression(AssignmentExpressionSyntax syntax) throws Exception{
+        String name = syntax.getIdentifierToken().getText();
+        BoundExpression boundExpression = BindExpression(syntax.getExpression());
+
+        _variables.keySet().stream().filter(
+                (var) -> var.getName().equals(name)
+        ).findFirst().ifPresent(existingVariable -> _variables.remove(existingVariable));
+
+        VariableSymbol variable = new VariableSymbol(name, boundExpression.getType());
+        _variables.put(variable, null);
+
+        return new BoundAssignmentExpression(variable, boundExpression);
     }
 
     private BoundExpression BindBinaryExpression(BinaryExpressionSyntax syntax) throws Exception{
@@ -96,15 +166,5 @@ public class Binder {
 
         return null;
 
-    }
-
-    private BoundExpression BindLiteralExpression(LiteralExpressionSyntax syntax) {
-        int value;
-        try{
-            value = (int)syntax.getValue();
-        } catch (Exception e){
-            value = 0;
-        }
-        return new BoundLiteralExpression(value);
     }
 }

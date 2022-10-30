@@ -1,25 +1,24 @@
 import Binder.Binder;
 import Binder.BoundExpression;
-import Syntax.ExpressionSyntax;
-import Syntax.SyntaxNode;
-import Syntax.SyntaxToken;
-import Syntax.SyntaxTree;
+import Syntax.*;
 
 import java.io.Console;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 class Main {
   public static void main(String[] args) throws Exception {
 
+    HashMap<VariableSymbol, Object> variables = new HashMap<>();
     while(true){
       Console csnl = System.console();
       String line;
       if(csnl != null) line = csnl.readLine();
-      else line = "-1 * 2 <  3 && 42 < 15 + 30"; /*"-1 * 2 <  3 && 42 < 15 + 30"*/
+      else line = "a = -1 * 2 <  3 && 42 < 15 + 30"; /*a = -1 * 2 <  3 && 42 < 15 + 30*/
       if(line == null || StringManipulation.IsNullOrWhitespace(line)) return;
 
       SyntaxTree syntaxTree = SyntaxTree.Parse(line);
-      Binder binder = new Binder();
+      Binder binder = new Binder(variables);
       BoundExpression boundExpression = binder.BindExpression(syntaxTree.getRoot());
 
       syntaxTree.getDiagnostics().addAll(binder.getDiagnostics());

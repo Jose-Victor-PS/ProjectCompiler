@@ -3,5 +3,5 @@ package Binder;
 public enum BoundNodeKind {
     UnaryExpression,
     LiteralExpression,
-    BinaryExpression
+    VariableExpression, AssignmentExpression, BinaryExpression
 }

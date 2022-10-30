@@ -53,7 +53,11 @@ public class Parser{
     return new SyntaxToken(kind, current().getPosition(), null, null);
   }
 
-  private ExpressionSyntax ParseExpression(int parentPrecedence){
+    private ExpressionSyntax ParseExpression(){
+      return ParseAssignmentExpression();
+    }
+
+  private ExpressionSyntax ParseBinaryExpression(int parentPrecedence){
     ExpressionSyntax left;
     int unaryPrecedence = SyntaxFacts.getUnaryOperatorPrecedence(current().getKind());
     if (unaryPrecedence != 0 && unaryPrecedence > parentPrecedence){
@@ -71,15 +75,26 @@ public class Parser{
         break;
       }
       SyntaxToken operatorToken = nextToken();
-      ExpressionSyntax right = ParseExpression(precedence);
+      ExpressionSyntax right = ParseBinaryExpression(precedence);
       left = new BinaryExpressionSyntax(left, operatorToken, right);
     }
 
     return left;
   }
 
+  private ExpressionSyntax ParseAssignmentExpression(){
+    if(peek(0).getKind() == SyntaxKind.IdentifierKeyword && peek(1).getKind() == SyntaxKind.EqualsToken){
+      SyntaxToken identifierToken = nextToken();
+      SyntaxToken operatorToken = nextToken();
+      ExpressionSyntax right = ParseAssignmentExpression();
+      return new AssignmentExpressionSyntax(identifierToken, operatorToken, right);
+    }
+
+    return ParseBinaryExpression(0);
+  }
+
   public SyntaxTree Parse(){
-    ExpressionSyntax expression = ParseExpression(0);
+    ExpressionSyntax expression = ParseExpression();
     SyntaxToken endOfFileToken = match(SyntaxKind.EndOfFileToken);
     return new SyntaxTree(_diagnostics, expression, endOfFileToken);
   }
@@ -87,7 +102,7 @@ public class Parser{
   private ExpressionSyntax parsePrimaryExpression(){
     if(current().getKind() == SyntaxKind.OpenParenthesisToken){
       SyntaxToken left = nextToken();
-      ExpressionSyntax expression = ParseExpression(0);
+      ExpressionSyntax expression = ParseExpression();
       SyntaxToken right = match(SyntaxKind.CloseParenthesisToken);
       return new ParenthesisExpressionSyntax(left, expression, right);
     }
@@ -95,6 +110,10 @@ public class Parser{
       SyntaxToken keyword = nextToken();
       boolean value = current().getKind() == SyntaxKind.TrueKeyword;
       return new LiteralExpressionSyntax(keyword, value);
+    }
+    else if(current().getKind() == SyntaxKind.IdentifierKeyword){
+      SyntaxToken identifierToken = nextToken();
+      return new NameExpressionSyntax(identifierToken);
     }
 
     SyntaxToken numberToken = match(SyntaxKind.NumberToken);
