@@ -1,8 +1,15 @@
+import Binder.Binder;
+import Binder.BoundExpression;
+import Syntax.ExpressionSyntax;
+import Syntax.SyntaxNode;
+import Syntax.SyntaxToken;
+import Syntax.SyntaxTree;
+
 import java.io.Console;
 import java.util.ArrayList;
 
 class Main {
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
 
     while(true){
       Console csnl = System.console();
@@ -12,6 +19,10 @@ class Main {
       if(line == null || StringManipulation.IsNullOrWhitespace(line)) return;
 
       SyntaxTree syntaxTree = SyntaxTree.Parse(line);
+      Binder binder = new Binder();
+      BoundExpression boundExpression = binder.BindExpression(syntaxTree.getRoot());
+
+      syntaxTree.getDiagnostics().addAll(binder.getDiagnostics());
 
       SyntaxTreePrint(syntaxTree);
 
