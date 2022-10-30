@@ -28,59 +28,74 @@ public class Binder {
     private BoundExpression BindBinaryExpression(BinaryExpressionSyntax syntax) throws Exception{
         BoundExpression boundLeft = BindExpression(syntax.getLeft());
         BoundExpression boundRight = BindExpression(syntax.getRight());
-        BoundBinaryOperatorKind boundOperatorKind = BindBinaryOperatorKind(syntax.getOperator().getKind(), boundLeft.getType(), boundRight.getType());
+        BoundBinaryOperator boundOperator = BoundBinaryOperator.Bind(syntax.getOperator().getKind(), boundLeft.getType(), boundRight.getType());
 
-        if(boundOperatorKind == null){
+        if(boundOperator == null){
             _diagnostics.add(String.format("Binary operator %s is not defined for types %s and %s", syntax.getOperator().getText(),
                                            boundLeft.getType(), boundRight.getType()));
             return boundLeft;
         }
 
-        return new BoundBinaryExpression(boundLeft, boundOperatorKind, boundRight);
+        return new BoundBinaryExpression(boundLeft, boundOperator, boundRight);
     }
 
     private BoundBinaryOperatorKind BindBinaryOperatorKind(SyntaxKind kind, Class<?> leftType, Class<?> rightType) throws Exception{
-        if(leftType != Integer.class || rightType != Integer.class){
-            return null;
+        if(leftType == Integer.class || rightType == Integer.class){
+            switch (kind){
+                case PlusToken:
+                    return BoundBinaryOperatorKind.Addition;
+                case MinusToken:
+                    return BoundBinaryOperatorKind.Subtraction;
+                case StarToken:
+                    return BoundBinaryOperatorKind.Multiplication;
+                case CompareToken:
+                    return BoundBinaryOperatorKind.Comparison;
+                default:
+                    throw new Exception(String.format("Unexpected binary operator %s", kind));
+            }
         }
 
-        switch (kind){
-            case PlusToken:
-                return BoundBinaryOperatorKind.Addition;
-            case MinusToken:
-                return BoundBinaryOperatorKind.Subtraction;
-            case StarToken:
-                return BoundBinaryOperatorKind.Multiplication;
-            default:
+        if(leftType == boolean.class || rightType == boolean.class){
+            if(kind == SyntaxKind.AndToken)
+                return BoundBinaryOperatorKind.LogicalAnd;
+            else
                 throw new Exception(String.format("Unexpected binary operator %s", kind));
         }
+
+        return null;
     }
 
     private BoundExpression BindUnaryExpression(UnaryExpressionSyntax syntax) throws Exception{
         BoundExpression boundOperand = BindExpression(syntax.getOperand());
-        BoundUnaryOperatorKind boundOperatorKind = BindUnaryOperatorKind(syntax.getOperator().getKind(), boundOperand.getType());
+        BoundUnaryOperator boundOperator = BoundUnaryOperator.Bind(syntax.getOperator().getKind(), boundOperand.getType());
 
-        if(boundOperatorKind == null){
+        if(boundOperator == null){
             _diagnostics.add(String.format("Unary operator %s is not defined for type %s", syntax.getOperator().getText(), boundOperand.getType()));
             return boundOperand;
         }
 
-        return new BoundUnaryExpression(boundOperatorKind, boundOperand);
+        return new BoundUnaryExpression(boundOperator, boundOperand);
     }
 
     private BoundUnaryOperatorKind BindUnaryOperatorKind(SyntaxKind kind, Class<?> operandType) throws Exception{
-        if(operandType != Integer.class){
-            return null;
+        if(operandType == Integer.class){
+            switch (kind){
+                case MinusToken:
+                    return BoundUnaryOperatorKind.Negation;
+                default:
+                    throw new Exception(String.format("Unexpected unary operator %s", kind));
+            }
         }
 
-        switch (kind){
-            case PlusToken:
-                return BoundUnaryOperatorKind.Identity;
-            case MinusToken:
-                return BoundUnaryOperatorKind.Negation;
-            default:
+        if(operandType == boolean.class){
+            if (kind == SyntaxKind.NegationToken)
+                return BoundUnaryOperatorKind.LogicalNegation;
+            else
                 throw new Exception(String.format("Unexpected unary operator %s", kind));
         }
+
+        return null;
+
     }
 
     private BoundExpression BindLiteralExpression(LiteralExpressionSyntax syntax) {

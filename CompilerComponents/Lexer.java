@@ -23,11 +23,20 @@ public class Lexer{
   }
 
   private char current(){
-    if(_position >= _text.length()){
+    return peek(0);
+  }
+
+  private char lookAhead(){
+    return peek(1);
+  }
+
+  private char peek(int offset){
+    int index = _position + offset;
+    if(index >= _text.length()){
       return '\0';
     }
     else{
-      return _text.charAt(_position);
+      return _text.charAt(index);
     }
   }
 
@@ -93,6 +102,13 @@ public class Lexer{
         return new SyntaxToken(SyntaxKind.OpenParenthesisToken, _position++, "(", null);
       case ')':
         return new SyntaxToken(SyntaxKind.CloseParenthesisToken, _position++, ")", null);
+      case '!':
+        return new SyntaxToken(SyntaxKind.NegationToken, _position++, "!", null);
+      case '<':
+        return new SyntaxToken(SyntaxKind.CompareToken, _position++, "<", null);
+      case '&':
+        if (lookAhead() == '&')
+          return new SyntaxToken(SyntaxKind.AndToken, _position += 2, "&&", null);
       default:
         _diagnostics.add(String.format("ERROR: bad character: %s", current()));
         return new SyntaxToken(SyntaxKind.BadToken, _position++, _text.substring(_position - 1, _position), null);

@@ -14,5 +14,5 @@ public enum SyntaxKind{
   BadToken,
   LiteralExpression,
   BinaryExpression,
-    TrueKeyword, FalseKeyword, IdentifierKeyword, UnaryExpression
+    TrueKeyword, FalseKeyword, IdentifierKeyword, AndToken, CompareToken, UnaryExpression
 }

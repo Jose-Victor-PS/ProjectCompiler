@@ -3,11 +3,11 @@ package Binder;
 import java.lang.reflect.Type;
 
 public class BoundUnaryExpression extends BoundExpression{
-    private BoundUnaryOperatorKind _operatorKind;
+    private BoundUnaryOperator _operator;
     private BoundExpression _operand;
 
-    public BoundUnaryExpression(BoundUnaryOperatorKind operatorKind, BoundExpression operand){
-        _operatorKind = operatorKind;
+    public BoundUnaryExpression(BoundUnaryOperator operator, BoundExpression operand){
+        _operator = operator;
         _operand = operand;
     }
 
@@ -15,8 +15,8 @@ public class BoundUnaryExpression extends BoundExpression{
         return _operand;
     }
 
-    public BoundUnaryOperatorKind getOperatorKind(){
-        return _operatorKind;
+    public BoundUnaryOperator getOperatorKind(){
+        return _operator;
     }
 
     @Override
@@ -26,6 +26,6 @@ public class BoundUnaryExpression extends BoundExpression{
 
     @Override
     public Class<?> getType(){
-        return _operand.getType();
+        return _operator.getResultType();
     }
 }

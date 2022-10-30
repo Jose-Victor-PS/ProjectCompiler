@@ -5,12 +5,12 @@ import java.lang.reflect.Type;
 public class BoundBinaryExpression extends BoundExpression{
     private BoundExpression _left;
     private BoundExpression _right;
-    private BoundBinaryOperatorKind _operatorKind;
+    private BoundBinaryOperator _operator;
 
-    public BoundBinaryExpression(BoundExpression left, BoundBinaryOperatorKind operatorKind, BoundExpression right){
+    public BoundBinaryExpression(BoundExpression left, BoundBinaryOperator operator, BoundExpression right){
         _left = left;
         _right = right;
-        _operatorKind = operatorKind;
+        _operator = operator;
     }
 
     public BoundExpression getLeft(){
@@ -19,13 +19,13 @@ public class BoundBinaryExpression extends BoundExpression{
     public BoundExpression getRight(){
         return _right;
     }
-    public BoundBinaryOperatorKind getOperatorKind(){
-        return _operatorKind;
+    public BoundBinaryOperator getOperatorKind(){
+        return _operator;
     }
 
     @Override
     public Class<?> getType() {
-        return _left.getType();
+        return _operator.getResultType();
     }
 
     @Override

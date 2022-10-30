@@ -3,5 +3,5 @@ package Binder;
 public enum BoundBinaryOperatorKind {
     Addition,
     Subtraction,
-    Multiplication
+    LogicalAnd, Comparison, Multiplication
 }
