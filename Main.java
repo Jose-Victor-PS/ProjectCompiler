@@ -15,7 +15,7 @@ class Main {
       Console csnl = System.console();
       String line;
       if(csnl != null) line = csnl.readLine();
-      else line = "-1 * 2 <  3 && 42 < 15 + 30"; /**/
+      else line = "-1 * 2 <  3 && 42 < 15 + 30"; /*"-1 * 2 <  3 && 42 < 15 + 30"*/
       if(line == null || StringManipulation.IsNullOrWhitespace(line)) return;
 
       SyntaxTree syntaxTree = SyntaxTree.Parse(line);

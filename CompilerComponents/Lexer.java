@@ -52,9 +52,10 @@ public class Lexer{
     if(_position >= _text.length()){
       return new SyntaxToken(SyntaxKind.EndOfFileToken, _position, "\0", null);
     }
-    
+
+    int start = _position;
+
     if(Character.isDigit(current())){
-      int start = _position;
 
       while(Character.isDigit(current())) next();
 
@@ -71,7 +72,6 @@ public class Lexer{
     }
 
     if(Character.isWhitespace(current())){
-      int start = _position;
 
       while(Character.isWhitespace(current())) next();
 
@@ -81,7 +81,6 @@ public class Lexer{
     }
 
     if(Character.isLetter(current())){
-      int start = _position;
 
       while(Character.isLetter(current())) next();
 
@@ -107,8 +106,10 @@ public class Lexer{
       case '<':
         return new SyntaxToken(SyntaxKind.CompareToken, _position++, "<", null);
       case '&':
-        if (lookAhead() == '&')
-          return new SyntaxToken(SyntaxKind.AndToken, _position += 2, "&&", null);
+        if (lookAhead() == '&'){
+          _position += 2;
+          return new SyntaxToken(SyntaxKind.AndToken, start, "&&", null);
+        }
       default:
         _diagnostics.add(String.format("ERROR: bad character: %s", current()));
         return new SyntaxToken(SyntaxKind.BadToken, _position++, _text.substring(_position - 1, _position), null);
