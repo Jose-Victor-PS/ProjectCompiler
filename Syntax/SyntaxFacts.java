@@ -38,6 +38,14 @@ public class SyntaxFacts {
                 return SyntaxKind.TrueKeyword;
             case "false":
                 return SyntaxKind.FalseKeyword;
+            case "int":
+                return SyntaxKind.IntTypeKeywork;
+            case "boolean":
+                return SyntaxKind.BooleanTypeKeyword;
+            case "new":
+                return SyntaxKind.AllocationKeyword;
+            case "this":
+                return SyntaxKind.ThisKeyword;
             default:
                 return SyntaxKind.IdentifierKeyword;
         }

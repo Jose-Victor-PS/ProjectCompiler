@@ -20,10 +20,9 @@ class Main {
       String line = sourceReader.nextLine(); /*a = -1 * 2 <  3 && 42 < 15 + 30*/
 
       SyntaxTree syntaxTree = SyntaxTree.Parse(line);
-      Binder binder = new Binder(variables);
-      BoundExpression boundExpression = binder.BindExpression(syntaxTree.getRoot());
+      //Binder binder = new Binder(variables, syntaxTree);
 
-      syntaxTree.getDiagnostics().addAll(binder.getDiagnostics());
+      //syntaxTree.getDiagnostics().addAll(binder.getDiagnostics());
 
       SyntaxTreePrint(syntaxTree);
 

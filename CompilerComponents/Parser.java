@@ -21,14 +21,23 @@ public class Parser{
     do{
       token = lexer.Lex();
 
-      if(token.getKind() != SyntaxKind.WhitespaceToken &&
-         token.getKind() != SyntaxKind.BadToken){
+      if(token.getKind() != SyntaxKind.WhitespaceToken){
         tokens.add(token);
-         }
+      }
     } while(token.getKind() != SyntaxKind.EndOfFileToken);
 
     _tokens = tokens;
     _diagnostics.addAll(lexer.getDiagnostics());
+  }
+
+  public SyntaxTree Parse(){
+    SyntaxToken lastToken;
+    ExpressionSyntax expression = ParseExpression();
+    if(_diagnostics.size() < 1)
+      lastToken = match(SyntaxKind.EndOfFileToken);
+    else
+      lastToken = match(SyntaxKind.BadToken);
+    return new SyntaxTree(_diagnostics, expression, lastToken);
   }
 
   private SyntaxToken peek(int offset){
@@ -53,9 +62,44 @@ public class Parser{
     return new SyntaxToken(kind, current().getPosition(), null, null);
   }
 
-    private ExpressionSyntax ParseExpression(){
-      return ParseAssignmentExpression();
+  private ExpressionSyntax ParseExpression(){
+      return ParseAssignmentOrDeclarationExpression();
     }
+
+  private ExpressionSyntax ParseAssignmentOrDeclarationExpression(){
+    if(peek(0).getKind() == SyntaxKind.IdentifierKeyword && peek(1).getKind() == SyntaxKind.EqualsToken){
+      SyntaxToken identifierToken = nextToken();
+      SyntaxToken operatorToken = nextToken();
+      ExpressionSyntax right = ParseAssignmentOrDeclarationExpression();
+      return new AssignmentExpressionSyntax(identifierToken, operatorToken, right);
+    }
+    else if((peek(0).getKind() == SyntaxKind.IntTypeKeywork || peek(0).getKind() == SyntaxKind.BooleanTypeKeyword)
+            && peek(1).getKind() == SyntaxKind.IdentifierKeyword && peek(2).getKind() == SyntaxKind.SemicolonToken){
+      SyntaxToken typeToken = nextToken();
+      SyntaxToken identifierToken = nextToken();
+      SyntaxToken semicolonToken = nextToken();
+      return new DeclarationExpressionSyntax(typeToken, identifierToken, semicolonToken);
+    }
+    else if(peek(0).getKind() == SyntaxKind.IntTypeKeywork
+            && peek(1).getKind() == SyntaxKind.OpenBracketsToken && peek(2).getKind() == SyntaxKind.CloseBracketsToken
+            && peek(3).getKind() == SyntaxKind.IdentifierKeyword && peek(4).getKind() == SyntaxKind.SemicolonToken){
+      SyntaxToken typeToken = nextToken();
+      nextToken(); // Open Brackets
+      nextToken(); // Close Brackets
+      SyntaxToken arrayTypeToken = new SyntaxToken(SyntaxKind.ArrayTypeToken, typeToken.getPosition(), "int []", null);
+      SyntaxToken identifierToken = nextToken();
+      SyntaxToken semicolonToken = nextToken();
+      return new DeclarationExpressionSyntax(arrayTypeToken, identifierToken, semicolonToken);
+    }
+    else if(peek(0).getKind() == SyntaxKind.AllocationKeyword
+            && (peek(1).getKind() == SyntaxKind.IntTypeKeywork || (peek(1).getKind() == SyntaxKind.IdentifierKeyword))){
+      SyntaxToken allocationToken = nextToken();
+      SyntaxToken typeToken = nextToken();
+      ExpressionSyntax initializationExpression = ParseAssignmentOrDeclarationExpression();
+      return new AllocationExpressionSyntax(allocationToken, typeToken, initializationExpression);
+    }
+    return ParseBinaryExpression(0);
+  }
 
   private ExpressionSyntax ParseBinaryExpression(int parentPrecedence){
     ExpressionSyntax left;
@@ -82,29 +126,18 @@ public class Parser{
     return left;
   }
 
-  private ExpressionSyntax ParseAssignmentExpression(){
-    if(peek(0).getKind() == SyntaxKind.IdentifierKeyword && peek(1).getKind() == SyntaxKind.EqualsToken){
-      SyntaxToken identifierToken = nextToken();
-      SyntaxToken operatorToken = nextToken();
-      ExpressionSyntax right = ParseAssignmentExpression();
-      return new AssignmentExpressionSyntax(identifierToken, operatorToken, right);
-    }
-
-    return ParseBinaryExpression(0);
-  }
-
-  public SyntaxTree Parse(){
-    ExpressionSyntax expression = ParseExpression();
-    SyntaxToken endOfFileToken = match(SyntaxKind.EndOfFileToken);
-    return new SyntaxTree(_diagnostics, expression, endOfFileToken);
-  }
-
   private ExpressionSyntax parsePrimaryExpression(){
     if(current().getKind() == SyntaxKind.OpenParenthesisToken){
       SyntaxToken left = nextToken();
       ExpressionSyntax expression = ParseExpression();
       SyntaxToken right = match(SyntaxKind.CloseParenthesisToken);
       return new ParenthesisExpressionSyntax(left, expression, right);
+    }
+    if(current().getKind() == SyntaxKind.OpenBracketsToken){
+      SyntaxToken left = nextToken();
+      ExpressionSyntax expression = ParseExpression();
+      SyntaxToken right = match(SyntaxKind.CloseBracketsToken);
+      return new BracketsExpressionSyntax(left, expression, right);
     }
     else if(current().getKind() == SyntaxKind.FalseKeyword || current().getKind() == SyntaxKind.TrueKeyword){
       SyntaxToken keyword = nextToken();

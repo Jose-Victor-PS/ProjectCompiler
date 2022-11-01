@@ -22,5 +22,16 @@ public enum SyntaxKind{
   NameExpression,
   AssignmentExpression,
   EqualsToken,
+  SemicolonToken,
+  IntTypeKeywork,
+  BooleanTypeKeyword,
+  AllocationKeyword,
+  DeclarationExpression,
+  OpenBracketsToken,
+  CloseBracketsToken,
+  ArrayTypeToken,
+  ThisKeyword,
+  BracketsExpression,
+  AllocationExpression,
   UnaryExpression
 }

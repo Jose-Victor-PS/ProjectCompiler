@@ -37,7 +37,7 @@ public class BoundUnaryOperator {
     private static BoundUnaryOperator[] _operators =
     {
         new BoundUnaryOperator(SyntaxKind.NegationToken, BoundUnaryOperatorKind.LogicalNegation, Boolean.class),
-        new BoundUnaryOperator(SyntaxKind.MinusToken, BoundUnaryOperatorKind.Negation, Integer.class)
+        new BoundUnaryOperator(SyntaxKind.MinusToken, BoundUnaryOperatorKind.NegativeValue, Integer.class)
     };
 
     public static BoundUnaryOperator Bind(SyntaxKind syntaxKind, Class<?> operandType) {

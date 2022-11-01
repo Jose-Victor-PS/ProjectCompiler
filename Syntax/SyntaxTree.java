@@ -6,12 +6,12 @@ import CompilerComponents.Parser;
 public class SyntaxTree {
     private List<String> _diagnostics;
     private ExpressionSyntax _root;
-    private SyntaxToken _endOfFileToken;
+    private SyntaxToken _lastToken;
 
-    public SyntaxTree(List<String> diagnostics, ExpressionSyntax root, SyntaxToken endOfFileToken){
+    public SyntaxTree(List<String> diagnostics, ExpressionSyntax root, SyntaxToken lastToken){
         _diagnostics = diagnostics;
         _root = root;
-        _endOfFileToken = endOfFileToken;
+        _lastToken = lastToken;
     }
 
     public List<String> getDiagnostics(){
@@ -22,8 +22,8 @@ public class SyntaxTree {
         return _root;
     }
 
-    public SyntaxToken getEndOfFileToken(){
-        return _endOfFileToken;
+    public SyntaxToken getLastToken(){
+        return _lastToken;
     }
 
     public static SyntaxTree Parse(String text){
