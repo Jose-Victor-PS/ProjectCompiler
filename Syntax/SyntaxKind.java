@@ -22,5 +22,5 @@ public enum SyntaxKind{
   NameExpression,
   AssignmentExpression,
   EqualsToken,
-  UnaryExpression
+    CompilationUnit, UnaryExpression
 }

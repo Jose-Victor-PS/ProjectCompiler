@@ -3,21 +3,49 @@ package Binder;
 import Syntax.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Stack;
 
 public class Binder {
     private ArrayList<String> _diagnostics = new ArrayList<>();
-    private HashMap<VariableSymbol, Object> _variables;
 
-    public Binder(HashMap<VariableSymbol, Object> variables){
-        _variables = variables;
+    private BoundScope _scope;
+
+    public Binder(BoundScope parent){
+        _scope = new BoundScope(parent);
+    }
+
+    public static BoundGlobalScope BindGlobalScope(BoundGlobalScope previous, CompilationUnitSyntax syntax) throws Exception{
+        BoundScope parentScope = CreateParentScopes(previous);
+        Binder binder = new Binder(parentScope);
+        BoundExpression expression = binder.BindExpression(syntax.getExpression());
+        ArrayList<VariableSymbol> variables = binder._scope.getDeclaredVariables();
+        ArrayList<String> diagnostics = binder._diagnostics;
+        return new BoundGlobalScope(null, diagnostics, variables, expression);
+    }
+
+    public static BoundScope CreateParentScopes(BoundGlobalScope previous){
+        Stack<BoundGlobalScope> stack = new Stack<BoundGlobalScope>();
+        while(previous != null){
+            stack.push(previous);
+            previous = previous.getPrevious();
+        }
+
+        BoundScope parent = null;
+
+        while(stack.size() > 0){
+            previous = stack.pop();
+            BoundScope scope = new BoundScope(parent);
+            for(VariableSymbol v : previous.getVariables()){
+                scope.TryDeclare(v);
+            }
+            parent = scope;
+        }
+
+        return parent;
     }
 
     public ArrayList<String> getDiagnostics(){
         return _diagnostics;
-    }
-
-    public HashMap<VariableSymbol, Object> getVariables(){
-        return _variables;
     }
 
     public BoundExpression BindExpression(ExpressionSyntax syntax) throws Exception{
@@ -70,27 +98,22 @@ public class Binder {
 
     private BoundExpression BindNameExpression(NameExpressionSyntax syntax) {
         String name = syntax.getIdentifierToken().getText();
-        VariableSymbol variable = _variables.keySet().stream().filter(
-                (var) -> var.getName().equals(name)
-        ).findFirst().orElse(null);
+        VariableSymbol variable = _scope.TryLookup(name);
         if(variable == null){
             _diagnostics.add(String.format("Varialbe %s is undefined", name));
             return new BoundLiteralExpression(0);
         }
-        Class<?> type = _variables.get(variable) == null ? Object.class : _variables.get(variable).getClass();
         return new BoundVariableExpression(variable);
     }
 
     private BoundExpression BindAssignmentExpression(AssignmentExpressionSyntax syntax) throws Exception{
         String name = syntax.getIdentifierToken().getText();
         BoundExpression boundExpression = BindExpression(syntax.getExpression());
-
-        _variables.keySet().stream().filter(
-                (var) -> var.getName().equals(name)
-        ).findFirst().ifPresent(existingVariable -> _variables.remove(existingVariable));
-
         VariableSymbol variable = new VariableSymbol(name, boundExpression.getType());
-        _variables.put(variable, null);
+
+        if(!_scope.TryDeclare(variable)){
+            _diagnostics.add(String.format("Variable '%s' already exists", name));
+        }
 
         return new BoundAssignmentExpression(variable, boundExpression);
     }

@@ -93,10 +93,10 @@ public class Parser{
     return ParseBinaryExpression(0);
   }
 
-  public SyntaxTree Parse(){
+  public CompilationUnitSyntax ParseCompilationUnit(){
     ExpressionSyntax expression = ParseExpression();
     SyntaxToken endOfFileToken = match(SyntaxKind.EndOfFileToken);
-    return new SyntaxTree(_diagnostics, expression, endOfFileToken);
+    return new CompilationUnitSyntax(expression, endOfFileToken);
   }
 
   private ExpressionSyntax parsePrimaryExpression(){

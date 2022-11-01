@@ -5,29 +5,24 @@ import CompilerComponents.Parser;
 
 public class SyntaxTree {
     private List<String> _diagnostics;
-    private ExpressionSyntax _root;
-    private SyntaxToken _endOfFileToken;
+    private CompilationUnitSyntax _root;
 
-    public SyntaxTree(List<String> diagnostics, ExpressionSyntax root, SyntaxToken endOfFileToken){
-        _diagnostics = diagnostics;
+    public SyntaxTree(String text){
+        Parser parser = new Parser(text);
+        CompilationUnitSyntax root = parser.ParseCompilationUnit();
+        _diagnostics = parser.getDiagnostics();
         _root = root;
-        _endOfFileToken = endOfFileToken;
     }
 
     public List<String> getDiagnostics(){
         return _diagnostics;
     }
 
-    public ExpressionSyntax getRoot(){
+    public CompilationUnitSyntax getRoot(){
         return _root;
     }
 
-    public SyntaxToken getEndOfFileToken(){
-        return _endOfFileToken;
-    }
-
     public static SyntaxTree Parse(String text){
-        Parser parser = new Parser(text);
-        return parser.Parse();
+        return new SyntaxTree(text);
     }
 }
