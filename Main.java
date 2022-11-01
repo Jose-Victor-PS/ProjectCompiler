@@ -3,19 +3,21 @@ import Binder.BoundExpression;
 import Syntax.*;
 
 import java.io.Console;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
 
 class Main {
   public static void main(String[] args) throws Exception {
 
     HashMap<VariableSymbol, Object> variables = new HashMap<>();
-    while(true){
-      Console csnl = System.console();
-      String line;
-      if(csnl != null) line = csnl.readLine();
-      else line = "a = -1 * 2 <  3 && 42 < 15 + 30"; /*a = -1 * 2 <  3 && 42 < 15 + 30*/
-      if(line == null || StringManipulation.IsNullOrWhitespace(line)) return;
+    File sourceFile = new File("source_test.minijava");
+    Scanner sourceReader = new Scanner(sourceFile);
+    int lineCounter = 1;
+
+    while(sourceReader.hasNextLine()){
+      String line = sourceReader.nextLine(); /*a = -1 * 2 <  3 && 42 < 15 + 30*/
 
       SyntaxTree syntaxTree = SyntaxTree.Parse(line);
       Binder binder = new Binder(variables);
@@ -27,12 +29,11 @@ class Main {
 
       if(!syntaxTree.getDiagnostics().isEmpty()){
         for(String diagnostic : syntaxTree.getDiagnostics()){
-          System.out.println(diagnostic);
+          System.out.printf("At line %s: %s%n", lineCounter, diagnostic);
         }
       }
-      break;
+      lineCounter++;
     }
-
   }
 
   public static void SyntaxTreePrint(SyntaxTree tree){
@@ -51,6 +52,10 @@ class Main {
     if (node instanceof SyntaxToken && ((SyntaxToken) node).getValue() != null){
       System.out.print(" ");
       System.out.print(((SyntaxToken) node).getValue());
+    }
+    else if (node instanceof SyntaxToken && node.getKind() == SyntaxKind.IdentifierKeyword){
+      System.out.print(" ");
+      System.out.print(((SyntaxToken) node).getText());
     }
 
     System.out.println();
