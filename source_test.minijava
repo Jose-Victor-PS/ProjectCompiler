@@ -1,4 +1,8 @@
-a = -1 * 2 <  3 && 42 < 15 + 30
+a = -1 * 2 <  3 && 42 < 15 + 30 ;
 int b ;
 int [ ] c ;
-c = new int [ 1 ]
+c = new int [ 1 ] ;
+b = new MeuInteiro();
+b = c.length ;
+b = c[0];
+c[0] = 2;
