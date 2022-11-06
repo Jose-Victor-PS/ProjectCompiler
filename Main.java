@@ -11,11 +11,7 @@ class Main {
     File sourceFile = new File("source_test.minijava");
     byte[] fileInBytes = Files.readAllBytes(sourceFile.toPath());
     String fileContent = new String (fileInBytes);
-    //Scanner sourceReader = new Scanner(sourceFile);
     Lexer lexer = new Lexer(fileContent);
-    //System.out.println();
-
-    /*a = -1 * 2 <  3 && 42 < 15 + 30*/
     ArrayList<LexiconToken> tokens = lexer.ScanSourceCode();
 
     printTokens(tokens);
