@@ -3,7 +3,6 @@ import Lexicon.LexiconToken;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 class Main {
   public static void main(String[] args) throws Exception {
@@ -17,6 +16,7 @@ class Main {
     printTokens(tokens);
 
     if(!lexer.getDiagnostics().isEmpty()){
+      System.out.println();
       for(String diagnostic : lexer.getDiagnostics()){
         System.out.printf("%s", diagnostic);
       }
@@ -27,14 +27,14 @@ class Main {
   private static void printTokens(ArrayList<LexiconToken> tokens) {
     int lines = 1;
     for(LexiconToken token : tokens) {
-      System.out.printf("%s : %s", token.getText(), token.getKind());
-      System.out.print("  ");
       if(token.getLine() > lines) {
         for(int i=0; i<token.getLine() - lines; i++) {
           System.out.println();
         }
         lines = token.getLine();
       }
+      System.out.printf("%s : %s", token.getText(), token.getKind());
+      System.out.print("  ");
     }
   }
 }

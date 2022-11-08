@@ -28,5 +28,16 @@ public enum TokenKind {
     LengthKeyword,
     OpenScopeToken,
     CloseScopeToken,
+    StringKeyword,
+    IfKeyword,
+    ElseKeyword,
+    WhileKeyword,
+    PublicKeyword,
+    StaticKeyword,
+    VoidKeyword,
+    MainKeyword,
+    ExtendsKeyword,
+    ReturnKeyword,
+    PrintKeyword,
     CommaToken
 }

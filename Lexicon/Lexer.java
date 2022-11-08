@@ -1,6 +1,8 @@
 package Lexicon;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Lexer{
   private final String _text;
@@ -9,6 +11,7 @@ public class Lexer{
   private ArrayList<String> _diagnostics = new ArrayList<>();
   private boolean _inLineComment = false;
   private boolean _inMultiComment = false;
+  private int _nestedComments = 0;
 
   public Lexer(String text){
     _text = text;
@@ -50,7 +53,9 @@ public class Lexer{
     do{
       token = this.Lex();
 
-      if(token.getKind() != TokenKind.IgnorableToken){
+      if(token.getKind() != TokenKind.IgnorableToken
+         && token.getKind() != TokenKind.EndOfFileToken
+         && token.getKind() != TokenKind.BadToken){
         tokens.add(token);
       }
     } while(token.getKind() != TokenKind.EndOfFileToken);
@@ -63,7 +68,6 @@ public class Lexer{
     if(_position >= _text.length()){
       return new LexiconToken(TokenKind.EndOfFileToken, _currentLine, "EOF", null);
     }
-    if (current() == '\n') _currentLine++;
 
     int start = _position;
 
@@ -85,7 +89,11 @@ public class Lexer{
 
     if(isIgnorableCharacter()){
 
-      while(isIgnorableCharacter()) next();
+      while(isIgnorableCharacter()) {
+        if (current() == '\n') _currentLine++;
+        next();
+        if(_position >= _text.length()) break;
+      }
 
       String text = _text.substring(start, _position);
 
@@ -94,7 +102,7 @@ public class Lexer{
 
     if(Character.isLetter(current())){
 
-      while(Character.isLetter(current())) next();
+      while(Character.isLetter(current()) || Character.isDigit(current()) || current() == '.') next();
 
       String text = _text.substring(start, _position);
       TokenKind kind = LexiconFacts.getKeywordKind(text);
@@ -157,10 +165,13 @@ public class Lexer{
         if (lookAhead() == '/'){
           _inLineComment = true;
           _position += 2;
+          return new LexiconToken(TokenKind.IgnorableToken, _currentLine, "//", null);
         }
         else if (lookAhead() == '*'){
           _inMultiComment = true;
+          _nestedComments++;
           _position += 2;
+          return new LexiconToken(TokenKind.IgnorableToken, _currentLine, "/*", null);
         }
       default:
         _diagnostics.add(String.format("At line %s: bad character: %s", _currentLine, current()));
@@ -173,19 +184,22 @@ public class Lexer{
     if (_inLineComment) {
       if (current() == '\n') {
         _inLineComment = false;
-        next();
       }
       return true;
     }
     else if (_inMultiComment) {
-      if(current() == '*' && peek(1) == '/') {
-        _inMultiComment = false;
-        _position += 2;
+      if(current() == '*' && lookAhead() == '/') {
+        _nestedComments--;
+        next();
       }
+      else if(current() == '/' && lookAhead() == '*') {
+        _nestedComments++;
+        next();
+      }
+      if(_nestedComments == 0) _inMultiComment = false;
       return true;
     }
-    else {
-      return Character.isWhitespace(current());
-    }
+    if(_nestedComments > 0) return true;
+    return Character.isWhitespace(current());
   }
 }

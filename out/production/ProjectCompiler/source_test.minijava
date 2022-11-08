@@ -4,5 +4,12 @@ int [ ] c ;
 c = new int [ 1 ] ;
 b = new MeuInteiro();
 b = c.length ;
+// Comentario de linha
+/* Comentario
+multi-linha  /*
+Aninhado
+*/*/
 b = c[0];
 c[0] = 2;
+d = 2 > 3;
+System.out.println(a);
