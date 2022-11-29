@@ -1,8 +1,6 @@
 package Lexicon;
 
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Lexer{
   private final String _text;
@@ -54,7 +52,6 @@ public class Lexer{
       token = this.Lex();
 
       if(token.getKind() != TokenKind.IgnorableToken
-         && token.getKind() != TokenKind.EndOfFileToken
          && token.getKind() != TokenKind.BadToken){
         tokens.add(token);
       }

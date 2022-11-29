@@ -1,15 +1,25 @@
-a = -1 * 2 <  3 && 42 < 15 + 30 ;
-int b ;
-int [ ] c ;
-c = new int [ 1 ] ;
-b = new MeuInteiro();
-b = c.length ;
-// Comentario de linha
-/* Comentario
-multi-linha  /*
-Aninhado
-*/*/
-b = c[0];
-c[0] = 2;
-d = 2 > 3;
-System.out.println(a);
+class Main { // Minha classe
+    public static void main(String [] args){
+        int a;
+        int b;
+        if(a < b) {
+            System.out.println(a);
+        } else {
+            System.out.println(b);
+        }
+        System.out.println(a + b);
+    }
+}
+
+/*
+Meu comentario multi-linha
+*/
+
+class Myclass extends mySuperClass{
+    int a;
+    int b;
+    public int myMethod(int a, int b){
+        System.out.println(a + b);
+        return a + b;
+    }
+}

@@ -1,7 +1,5 @@
 package Lexicon;
 
-import jdk.nashorn.internal.parser.Token;
-
 public class LexiconFacts {
     public static TokenKind getKeywordKind(String text) {
         switch (text){
@@ -10,7 +8,7 @@ public class LexiconFacts {
             case "false":
                 return TokenKind.FalseKeyword;
             case "int":
-                return TokenKind.IntTypeKeywork;
+                return TokenKind.IntTypeKeyword;
             case "boolean":
                 return TokenKind.BooleanTypeKeyword;
             case "new":
@@ -37,13 +35,15 @@ public class LexiconFacts {
                 return TokenKind.MainKeyword;
             case "extends":
                 return TokenKind.ExtendsKeyword;
+            case "class":
+                return TokenKind.ClassKeyword;
             case "return":
                 return TokenKind.ReturnKeyword;
             case "System.out.println":
                 return TokenKind.PrintKeyword;
             default:
                 if(!text.contains(".")) return TokenKind.IdentifierKeyword;
-                return TokenKind.BadToken;
+                return TokenKind.BadToken; // @TODO Nao pode ser bad token
         }
     }
 }
