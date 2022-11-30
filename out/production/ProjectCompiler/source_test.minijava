@@ -1,8 +1,6 @@
 class Main { // Minha classe
     public static void main(String [] args){
-        while(true){
-            a = 1;
-            b = 3;
-        }
+        int a;
+        a = 1 * 2 <  3 && 42 < 15 + b.length ;
     }
 }

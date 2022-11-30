@@ -337,25 +337,9 @@ public class Parser{
         }
       }
     }
-    else if(current().getKind() == SyntaxKind.StarToken) {
-      SyntaxNode operatorToken = nextToken();
-      ExpressionSyntax rightExpression = ParseExpression();
-      return new BinaryExpressionSyntax(primaryExpression, operatorToken, rightExpression);
-    }
-    else if(current().getKind() == SyntaxKind.PlusToken || current().getKind() == SyntaxKind.MinusToken) {
-      SyntaxNode operatorToken = nextToken();
-      ExpressionSyntax rightExpression = ParseExpression();
-      return new BinaryExpressionSyntax(primaryExpression, operatorToken, rightExpression);
-    }
-    else if(current().getKind() == SyntaxKind.CompareToken) {
-      SyntaxNode operatorToken = nextToken();
-      ExpressionSyntax rightExpression = ParseExpression();
-      return new BinaryExpressionSyntax(primaryExpression, operatorToken, rightExpression);
-    }
-    else if(current().getKind() == SyntaxKind.AndToken) {
-      SyntaxNode operatorToken = nextToken();
-      ExpressionSyntax rightExpression = ParseExpression();
-      return new BinaryExpressionSyntax(primaryExpression, operatorToken, rightExpression);
+    else if(current().getKind() == SyntaxKind.StarToken || current().getKind() == SyntaxKind.PlusToken || current().getKind() == SyntaxKind.MinusToken ||
+            current().getKind() == SyntaxKind.CompareToken || current().getKind() == SyntaxKind.AndToken) {
+      return ParseBinaryExpression(0, primaryExpression);
     }
     return primaryExpression;
     //return ParseBinaryExpression(0); @TODO Verificar como orgnaizar precedencia de operadores matematicos
@@ -373,25 +357,25 @@ public class Parser{
     return expressionList;
   }
 
-  private ExpressionSyntax ParseBinaryExpression(int parentPrecedence){ // @TODO Olha este método aqui(esquecido)
-    ExpressionSyntax left;
-    int unaryPrecedence = SyntaxFacts.getUnaryOperatorPrecedence(current().getKind());
-    if (unaryPrecedence != 0 && unaryPrecedence > parentPrecedence){
-      SyntaxNode operatorToken = nextToken();
-      ExpressionSyntax operand = ParseBinaryExpression(unaryPrecedence);
-      left = new UnaryExpressionSyntax(operatorToken, operand);
+  private ExpressionSyntax ParseBinaryExpression(int parentPrecedence, ExpressionSyntax left){ // @TODO Olha este método aqui(esquecido)
+    if(left == null) {
+      int unaryPrecedence = SyntaxFacts.getUnaryOperatorPrecedence(current().getKind());
+      if (unaryPrecedence != 0 && unaryPrecedence > parentPrecedence){
+        SyntaxNode operatorToken = nextToken();
+        ExpressionSyntax operand = ParseBinaryExpression(unaryPrecedence, null);
+        left = new UnaryExpressionSyntax(operatorToken, operand);
+      }
+      else{
+        left = ParsePrimaryExpression();
+      }
     }
-    else{
-      left = ParsePrimaryExpression();
-    }
-
     while (true){
       int precedence = SyntaxFacts.getBinaryOperatorPrecedence(current().getKind());
       if(precedence == 0 || precedence <= parentPrecedence){
         break;
       }
       SyntaxNode operatorToken = nextToken();
-      ExpressionSyntax right = ParseBinaryExpression(precedence);
+      ExpressionSyntax right = ParseBinaryExpression(precedence, null);
       left = new BinaryExpressionSyntax(left, operatorToken, right);
     }
 
