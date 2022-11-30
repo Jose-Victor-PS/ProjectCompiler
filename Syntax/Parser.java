@@ -196,23 +196,24 @@ public class Parser{
     return formalParameterList;
   }
 
-  ArrayList<DeclarationSyntax> ParseVariableDeclarationList() { // @TODO Ancora
+  ArrayList<DeclarationSyntax> ParseVariableDeclarationList() {
     ArrayList<DeclarationSyntax> variableDeclarationList = new ArrayList<>();
     SyntaxKind current = current().getKind();
     SyntaxKind next = lookAhead().getKind();
-    while(current == SyntaxKind.BooleanTypeKeyword || current == SyntaxKind.IntTypeKeywork ||
+    while(current == SyntaxKind.BooleanTypeKeyword || current == SyntaxKind.IntTypeKeyword ||
           current == SyntaxKind.IdentifierKeyword) {
       if(current == SyntaxKind.IdentifierKeyword && next != SyntaxKind.IdentifierKeyword) break;
       DeclarationSyntax variableDeclaration = ParseVariableDeclaration();
       match(SyntaxKind.SemicolonToken);
       variableDeclarationList.add(variableDeclaration);
       current = current().getKind();
+      next = lookAhead().getKind();
     }
     if(variableDeclarationList.size() == 0) variableDeclarationList = null;
     return variableDeclarationList;
   }
 
-  private DeclarationSyntax ParseVariableDeclaration(){ //@TODO Esquecido
+  private DeclarationSyntax ParseVariableDeclaration(){
     SyntaxNode type = ParseType();
     if(type != null) {
       SyntaxNode identifier = match(SyntaxKind.IdentifierKeyword);
@@ -227,7 +228,7 @@ public class Parser{
     if(current().getKind() == SyntaxKind.BooleanTypeKeyword || current().getKind() == SyntaxKind.IdentifierKeyword) {
       return nextToken();
     }
-    else if(current().getKind() == SyntaxKind.IntTypeKeywork) {
+    else if(current().getKind() == SyntaxKind.IntTypeKeyword) {
       SyntaxNode type = nextToken();
       if(optionalMatch(SyntaxKind.OpenBracketsToken)) {
         SyntaxNode openingToken = nextToken();
@@ -428,7 +429,7 @@ public class Parser{
     }
     else if(current().getKind() == SyntaxKind.AllocationKeyword) {
       SyntaxNode allocationToken = nextToken();
-      if(current().getKind() == SyntaxKind.IntTypeKeywork) {
+      if(current().getKind() == SyntaxKind.IntTypeKeyword) {
         SyntaxNode typeToken = nextToken();
         SyntaxNode openBrackets = match(SyntaxKind.OpenBracketsToken);
         ExpressionSyntax initializationExpression = ParseExpression();

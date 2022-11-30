@@ -20,7 +20,7 @@ public enum TokenKind {
     CompareToken(SyntaxKind.CompareToken),
     EqualsToken(SyntaxKind.EqualsToken),
     SemicolonToken(SyntaxKind.SemicolonToken),
-    IntTypeKeyword(SyntaxKind.IntTypeKeywork),
+    IntTypeKeyword(SyntaxKind.IntTypeKeyword),
     BooleanTypeKeyword(SyntaxKind.BooleanTypeKeyword),
     AllocationKeyword(SyntaxKind.AllocationKeyword),
     OpenBracketsToken(SyntaxKind.OpenBracketsToken),

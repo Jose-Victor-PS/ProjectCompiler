@@ -1,6 +1,8 @@
 class Main { // Minha classe
     public static void main(String [] args){
-        int[] a;
-        a[0] = 1 + 2;
+        while(true){
+            a = 1;
+            b = 3;
+        }
     }
 }

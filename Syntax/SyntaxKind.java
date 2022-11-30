@@ -17,7 +17,7 @@ public enum SyntaxKind{
   CompareToken,
   EqualsToken,
   SemicolonToken,
-  IntTypeKeywork,
+  IntTypeKeyword,
   BooleanTypeKeyword,
   AllocationKeyword,
   OpenBracketsToken,
