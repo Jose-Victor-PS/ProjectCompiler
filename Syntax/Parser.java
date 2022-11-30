@@ -389,10 +389,8 @@ public class Parser{
       SyntaxNode right = match(SyntaxKind.CloseParenthesisToken);
       return new ParenthesisExpressionSyntax(left, expression, right);
     }
-    else if (current().getKind() == SyntaxKind.NegationToken) {
-      SyntaxNode operatorToken = nextToken();
-      ExpressionSyntax operand = ParseExpression();
-      return new UnaryExpressionSyntax(operatorToken, operand);
+    else if (current().getKind() == SyntaxKind.NegationToken || current().getKind() == SyntaxKind.MinusToken) {
+      return ParseBinaryExpression(0, null);
     }
     else if(current().getKind() == SyntaxKind.FalseKeyword || current().getKind() == SyntaxKind.TrueKeyword) {
       SyntaxNode booleanKeyword = nextToken();

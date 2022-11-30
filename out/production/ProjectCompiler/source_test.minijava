@@ -1,6 +1,6 @@
 class Main { // Minha classe
     public static void main(String [] args){
         int a;
-        a = 1 * 2 <  3 && 42 < 15 + b.length ;
+        a = -1 * 2 <  3 && 42 < -15 + 30 ;
     }
 }
