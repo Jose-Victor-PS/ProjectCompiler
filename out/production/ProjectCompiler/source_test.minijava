@@ -1,25 +1,6 @@
 class Main { // Minha classe
     public static void main(String [] args){
-        int a;
-        int b;
-        if(a < b) {
-            System.out.println(a);
-        } else {
-            System.out.println(b);
-        }
-        System.out.println(a + b);
-    }
-}
-
-/*
-Meu comentario multi-linha
-*/
-
-class Myclass extends mySuperClass{
-    int a;
-    int b;
-    public int myMethod(int a, int b){
-        System.out.println(a + b);
-        return a + b;
+        int[] a;
+        a[0] = 1 + 2;
     }
 }

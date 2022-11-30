@@ -1,6 +1,6 @@
 package Syntax;
 
-public class SyntaxFacts {
+public class SyntaxFacts { //@TODO nao eh usado mais
     public static int getUnaryOperatorPrecedence(SyntaxKind kind){
         switch (kind){
             case MinusToken:

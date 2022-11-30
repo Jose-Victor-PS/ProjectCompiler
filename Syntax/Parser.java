@@ -33,6 +33,10 @@ public class Parser{
     return peek(0);
   }
 
+  private SyntaxNode lookAhead(){
+    return peek(1);
+  }
+
   private SyntaxNode nextToken(){
     SyntaxNode current = current();
     _position++;
@@ -85,7 +89,7 @@ public class Parser{
                                             closeParenthesis, openInnerScope, variableDeclarationList, statementList, closeInnerScope, closeScope);
     }
     nextToken();
-    _diagnostics.add(String.format("At line %s - Unexpected token <%s>", current().getLine(), current().getKind()));
+    _diagnostics.add(String.format("At line %s - Unexpected token <%s>, expected Main Class", current().getLine(), current().getKind()));
     return new BadDeclarationSyntax(current());
   }
 
@@ -120,7 +124,7 @@ public class Parser{
       return new ClassDeclarationSyntax(classKeyword, className, extendsKeyword, superClass, openScope, variableDeclarationList, methodDeclarationList, closeScope);
     }
     nextToken();
-    _diagnostics.add(String.format("At line %s - Unexpected token <%s>", current().getLine(), current().getKind()));
+    _diagnostics.add(String.format("At line %s - Unexpected token <%s>, expected Class Declaration", current().getLine(), current().getKind()));
     return new BadDeclarationSyntax(current());
   }
 
@@ -165,7 +169,7 @@ public class Parser{
               openScope, variableDeclarationList, statementList, returnKeyword, expression, closeScope);
     }
     nextToken();
-    _diagnostics.add(String.format("At line %s - Unexpected token <%s>", current().getLine(), current().getKind()));
+    _diagnostics.add(String.format("At line %s - Unexpected token <%s>, expected method Declaration", current().getLine(), current().getKind()));
     return new BadDeclarationSyntax(current());
   }
 
@@ -176,7 +180,7 @@ public class Parser{
       return new FormalParameterSyntax(type, identifier);
     }
     nextToken();
-    _diagnostics.add(String.format("At line %s - Unexpected token <%s>", current().getLine(), current().getKind()));
+    _diagnostics.add(String.format("At line %s - Unexpected token <%s>, expected Formal Parameter", current().getLine(), current().getKind()));
     return new BadDeclarationSyntax(current());
   }
 
@@ -192,15 +196,16 @@ public class Parser{
     return formalParameterList;
   }
 
-  ArrayList<DeclarationSyntax> ParseVariableDeclarationList() {
+  ArrayList<DeclarationSyntax> ParseVariableDeclarationList() { // @TODO Ancora
     ArrayList<DeclarationSyntax> variableDeclarationList = new ArrayList<>();
     SyntaxKind current = current().getKind();
+    SyntaxKind next = lookAhead().getKind();
     while(current == SyntaxKind.BooleanTypeKeyword || current == SyntaxKind.IntTypeKeywork ||
-          current == SyntaxKind.IdentifierKeyword || current == SyntaxKind.ArrayTypeToken) { // @TODO Errado receber o arraytoken assim
-      SyntaxNode type = nextToken();
-      SyntaxNode identifier = match(SyntaxKind.IdentifierKeyword);
+          current == SyntaxKind.IdentifierKeyword) {
+      if(current == SyntaxKind.IdentifierKeyword && next != SyntaxKind.IdentifierKeyword) break;
+      DeclarationSyntax variableDeclaration = ParseVariableDeclaration();
       match(SyntaxKind.SemicolonToken);
-      variableDeclarationList.add(new VariableDeclarationSyntax(type, identifier));
+      variableDeclarationList.add(variableDeclaration);
       current = current().getKind();
     }
     if(variableDeclarationList.size() == 0) variableDeclarationList = null;
@@ -211,11 +216,10 @@ public class Parser{
     SyntaxNode type = ParseType();
     if(type != null) {
       SyntaxNode identifier = match(SyntaxKind.IdentifierKeyword);
-      match(SyntaxKind.SemicolonToken);
       return new VariableDeclarationSyntax(type, identifier);
     }
     nextToken();
-    _diagnostics.add(String.format("At line %s - Unexpected token <%s>", current().getLine(), current().getKind()));
+    _diagnostics.add(String.format("At line %s - Unexpected token <%s>, expected Variable Declaration", current().getLine(), current().getKind()));
     return new BadDeclarationSyntax(current());
   }
 
@@ -299,7 +303,7 @@ public class Parser{
       }
     }
     nextToken();
-    _diagnostics.add(String.format("At line %s - Unexpected token <%s>", current().getLine(), current().getKind()));
+    _diagnostics.add(String.format("At line %s - Unexpected token <%s>, Expected Statement", current().getLine(), current().getKind()));
     return new BadStatementSyntax(current());
   }
 
@@ -368,7 +372,7 @@ public class Parser{
     return expressionList;
   }
 
-  private ExpressionSyntax ParseBinaryExpression(int parentPrecedence){ // @TODO Olha este método aqui
+  private ExpressionSyntax ParseBinaryExpression(int parentPrecedence){ // @TODO Olha este método aqui(esquecido)
     ExpressionSyntax left;
     int unaryPrecedence = SyntaxFacts.getUnaryOperatorPrecedence(current().getKind());
     if (unaryPrecedence != 0 && unaryPrecedence > parentPrecedence){
@@ -439,7 +443,7 @@ public class Parser{
       }
     }
     nextToken();
-    _diagnostics.add(String.format("At line %s - Unexpected token <%s>", current().getLine(), current().getKind())); // @TODO Olhar esse caso
+    _diagnostics.add(String.format("At line %s - Unexpected token <%s>, Expected a Primary Expression", current().getLine(), current().getKind()));
     return new BadExpressionSyntax(current());
   }
 }

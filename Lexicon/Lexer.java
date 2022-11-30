@@ -99,12 +99,22 @@ public class Lexer{
 
     if(Character.isLetter(current())){
 
-      while(Character.isLetter(current()) || Character.isDigit(current()) || current() == '.') next();
+      while(Character.isLetter(current()) || Character.isDigit(current())) next();
 
       String text = _text.substring(start, _position);
       TokenKind kind = LexiconFacts.getKeywordKind(text);
 
-      return new LexiconToken(kind, _currentLine, text, null);
+      if(!text.equals("System")) return new LexiconToken(kind, _currentLine, text, null);
+
+      String printKeyword = "System.out.println";
+      int safeGuardPosition = _position;
+      while(printKeyword.startsWith(text)) {
+        text = _text.substring(start, _position);
+        if(text.equals(printKeyword)) return new LexiconToken(TokenKind.PrintKeyword, _currentLine, text, null);
+        next();
+      }
+      _position = safeGuardPosition;
+      return new LexiconToken(TokenKind.IdentifierKeyword, _currentLine, "System", null);
     }
 
     switch (current()) {

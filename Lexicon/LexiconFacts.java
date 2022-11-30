@@ -39,11 +39,8 @@ public class LexiconFacts {
                 return TokenKind.ClassKeyword;
             case "return":
                 return TokenKind.ReturnKeyword;
-            case "System.out.println":
-                return TokenKind.PrintKeyword;
             default:
-                if(!text.contains(".")) return TokenKind.IdentifierKeyword;
-                return TokenKind.BadToken; // @TODO Nao pode ser bad token
+                return TokenKind.IdentifierKeyword;
         }
     }
 }
