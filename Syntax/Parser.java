@@ -342,7 +342,6 @@ public class Parser{
       return ParseBinaryExpression(0, primaryExpression);
     }
     return primaryExpression;
-    //return ParseBinaryExpression(0); @TODO Verificar como orgnaizar precedencia de operadores matematicos
   }
 
   private ArrayList<SyntaxEntity> ParseExpressionList(){
@@ -357,7 +356,7 @@ public class Parser{
     return expressionList;
   }
 
-  private ExpressionSyntax ParseBinaryExpression(int parentPrecedence, ExpressionSyntax left){ // @TODO Olha este método aqui(esquecido)
+  private ExpressionSyntax ParseBinaryExpression(int parentPrecedence, ExpressionSyntax left){
     if(left == null) {
       int unaryPrecedence = SyntaxFacts.getUnaryOperatorPrecedence(current().getKind());
       if (unaryPrecedence != 0 && unaryPrecedence > parentPrecedence){

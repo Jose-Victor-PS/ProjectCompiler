@@ -61,7 +61,7 @@ class Main {
     SyntaxTreePrint(root, indent, true);
   }
 
-  public static void SyntaxTreePrint(SyntaxEntity node, String indent, boolean isLast){ // @TODO nao gostei do nome de variavel isLast
+  public static void SyntaxTreePrint(SyntaxEntity node, String indent, boolean isLast){
     if(node == null) return;
     String marker = isLast ? "└──" : "├──";
 
