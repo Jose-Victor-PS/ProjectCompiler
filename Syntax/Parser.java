@@ -6,11 +6,16 @@ import Syntax.Expression.*;
 import Syntax.Statement.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Parser{
   private ArrayList<SyntaxNode> _tokens;
   private int _position;
   private ArrayList<String> _diagnostics = new ArrayList<>();
+  private String _currentClassScope;
+  private String _currentMethodScope;
+  private HashMap<String, String> _variables = new HashMap<>();
+  private boolean _inMethod = false;
 
   public ArrayList<String> getDiagnostics(){
     return _diagnostics;
@@ -66,16 +71,26 @@ public class Parser{
     if(current().getKind() == SyntaxKind.ClassKeyword) {
       SyntaxNode classKeyword = nextToken();
       SyntaxNode className = match(SyntaxKind.IdentifierKeyword);
+
+      _currentClassScope = className.getText();
+
       SyntaxNode openScope = match(SyntaxKind.OpenScopeToken);
       SyntaxNode publicKeyword = match(SyntaxKind.PublicKeyword);
       SyntaxNode staticKeyword = match(SyntaxKind.StaticKeyword);
       SyntaxNode voidKeyword = match(SyntaxKind.VoidKeyword);
       SyntaxNode mainKeyword = match(SyntaxKind.MainKeyword);
+
+      _currentMethodScope = _currentClassScope + "." + mainKeyword.getText();
+      _inMethod = true;
+
       SyntaxNode openParenthesis = match(SyntaxKind.OpenParenthesisToken);
       SyntaxNode stringKeyword = match(SyntaxKind.StringKeyword);
       SyntaxNode openBrackets = match(SyntaxKind.OpenBracketsToken);
       SyntaxNode closeBrackets = match(SyntaxKind.CloseBracketsToken);
+
       SyntaxNode cmdArgsName = match(SyntaxKind.IdentifierKeyword);
+      _variables.put(cmdArgsName.getText(), _currentMethodScope);
+
       SyntaxNode closeParenthesis = match(SyntaxKind.CloseParenthesisToken);
 
       SyntaxNode openInnerScope = match(SyntaxKind.OpenScopeToken);
@@ -84,6 +99,8 @@ public class Parser{
       SyntaxNode closeInnerScope = match(SyntaxKind.CloseScopeToken);
 
       SyntaxNode closeScope = match(SyntaxKind.CloseScopeToken);
+      _inMethod = false;
+
       return new MainClassDeclarationSyntax(classKeyword, className, openScope, publicKeyword, staticKeyword, voidKeyword,
                                             mainKeyword, openParenthesis, stringKeyword, openBrackets, closeBrackets, cmdArgsName,
                                             closeParenthesis, openInnerScope, variableDeclarationList, statementList, closeInnerScope, closeScope);
@@ -108,6 +125,9 @@ public class Parser{
     if(current().getKind() == SyntaxKind.ClassKeyword) {
       SyntaxNode classKeyword = nextToken();
       SyntaxNode className = match(SyntaxKind.IdentifierKeyword);
+
+      _currentClassScope = className.getText();
+
       SyntaxNode extendsKeyword;
       SyntaxNode superClass;
       if(optionalMatch(SyntaxKind.ExtendsKeyword)) {
@@ -144,6 +164,10 @@ public class Parser{
       SyntaxNode publicKeyword = nextToken();
       SyntaxNode type = ParseType();
       SyntaxNode methodName = match(SyntaxKind.IdentifierKeyword);
+
+      _currentMethodScope = _currentClassScope + "." + methodName.getText();
+      _inMethod = true;
+
       SyntaxNode openingParenthesis = match(SyntaxKind.OpenParenthesisToken);
       DeclarationSyntax firstParameter;
       ArrayList<SyntaxEntity> parameterList;
@@ -158,13 +182,17 @@ public class Parser{
         parameterList = ParseFormalParameterList();
         closingParenthesis = match(SyntaxKind.CloseParenthesisToken);
       }
+
       SyntaxNode openScope = match(SyntaxKind.OpenScopeToken);
       ArrayList<DeclarationSyntax> variableDeclarationList = ParseVariableDeclarationList();
       ArrayList<StatementSyntax> statementList = ParseStatementList();
       SyntaxNode returnKeyword = match(SyntaxKind.ReturnKeyword);
       ExpressionSyntax expression = ParseExpression();
       match(SyntaxKind.SemicolonToken);
+
       SyntaxNode closeScope = match(SyntaxKind.CloseScopeToken);
+      _inMethod = false;
+
       return new MethodDeclarationSyntax(publicKeyword, type, methodName, openingParenthesis, firstParameter, parameterList, closingParenthesis,
               openScope, variableDeclarationList, statementList, returnKeyword, expression, closeScope);
     }
@@ -177,6 +205,9 @@ public class Parser{
     SyntaxNode type = ParseType();
     if(type != null) {
       SyntaxNode identifier = match(SyntaxKind.IdentifierKeyword);
+
+      _variables.put(identifier.getText(), _currentMethodScope);
+
       return new FormalParameterSyntax(type, identifier);
     }
     nextToken();
@@ -217,6 +248,10 @@ public class Parser{
     SyntaxNode type = ParseType();
     if(type != null) {
       SyntaxNode identifier = match(SyntaxKind.IdentifierKeyword);
+
+      if(_inMethod)_variables.put(identifier.getText(), _currentMethodScope);
+      else _variables.put(identifier.getText(), _currentClassScope);
+
       return new VariableDeclarationSyntax(type, identifier);
     }
     nextToken();
@@ -398,6 +433,13 @@ public class Parser{
     }
     else if(current().getKind() == SyntaxKind.IdentifierKeyword) {
       SyntaxNode identifierToken = nextToken();
+
+      String variableScope = _variables.get(identifierToken.getText());
+      if(variableScope == null) _diagnostics.add(String.format("At line %s - Undefined variable <%s>", identifierToken.getLine(), identifierToken.getText()));
+      else {
+        if(!variableScope.equals(_currentMethodScope)) _diagnostics.add(String.format("At line %s - Undefined variable <%s> for scope <%s>", identifierToken.getLine(), identifierToken.getText(), _currentMethodScope));
+      }
+
       return new NameExpressionSyntax(identifierToken);
     }
     else if(current().getKind() == SyntaxKind.NumberToken) {
