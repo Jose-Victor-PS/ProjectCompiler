@@ -322,6 +322,13 @@ public class Parser{
     }
     else if(current().getKind() == SyntaxKind.IdentifierKeyword){
       SyntaxNode identifierToken = nextToken();
+
+      String variableScope = _variables.get(identifierToken.getText());
+      if(variableScope == null) _diagnostics.add(String.format("At line %s - Undefined variable <%s>", identifierToken.getLine(), identifierToken.getText()));
+      else {
+        if(!variableScope.equals(_currentMethodScope)) _diagnostics.add(String.format("At line %s - Undefined variable <%s> for scope <%s>", identifierToken.getLine(), identifierToken.getText(), _currentMethodScope));
+      }
+
       if(current().getKind() == SyntaxKind.EqualsToken) {
         SyntaxNode operatorToken = nextToken();
         ExpressionSyntax right = ParseExpression();
