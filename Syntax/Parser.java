@@ -326,7 +326,7 @@ public class Parser{
       String variableScope = _variables.get(identifierToken.getText());
       if(variableScope == null) _diagnostics.add(String.format("At line %s - Undefined variable <%s>", identifierToken.getLine(), identifierToken.getText()));
       else {
-        if(!variableScope.equals(_currentMethodScope)) _diagnostics.add(String.format("At line %s - Undefined variable <%s> for scope <%s>", identifierToken.getLine(), identifierToken.getText(), _currentMethodScope));
+        if(!variableScope.equals(_currentMethodScope) && !variableScope.equals(_currentMethodScope.split("[.]")[0])) _diagnostics.add(String.format("At line %s - Undefined variable <%s> for scope <%s>", identifierToken.getLine(), identifierToken.getText(), _currentMethodScope));
       }
 
       if(current().getKind() == SyntaxKind.EqualsToken) {
@@ -444,7 +444,7 @@ public class Parser{
       String variableScope = _variables.get(identifierToken.getText());
       if(variableScope == null) _diagnostics.add(String.format("At line %s - Undefined variable <%s>", identifierToken.getLine(), identifierToken.getText()));
       else {
-        if(!variableScope.equals(_currentMethodScope)) _diagnostics.add(String.format("At line %s - Undefined variable <%s> for scope <%s>", identifierToken.getLine(), identifierToken.getText(), _currentMethodScope));
+        if(!variableScope.equals(_currentMethodScope) && !variableScope.equals(_currentMethodScope.split("[.]")[0])) _diagnostics.add(String.format("At line %s - Undefined variable <%s> for scope <%s>", identifierToken.getLine(), identifierToken.getText(), _currentMethodScope));
       }
 
       return new NameExpressionSyntax(identifierToken);
