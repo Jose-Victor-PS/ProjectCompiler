@@ -1,0 +1,7 @@
+class Main { // Minha classe
+    public static void main(String [] args){
+        System.out.println(10);
+        int a;
+        System.out.println(a);
+    }
+}

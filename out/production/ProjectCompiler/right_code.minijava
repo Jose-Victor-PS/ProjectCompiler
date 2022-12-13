@@ -2,7 +2,6 @@ class Main { // Minha classe
     public static void main(String [] args){
         int a;
         int c;
-        a = 1 + 2;
         if(a < c) {
             System.out.println(a);
         } else {
@@ -17,8 +16,10 @@ Meu comentario multi-linha
 */
 
 class Myclass extends mySuperClass{
+    int b;
     public int myMethod(int a, int d){
-        System.out.println(a + d);
-        return a + d;
+        b = a + d;
+        System.out.println(b);
+        return b;
     }
 }

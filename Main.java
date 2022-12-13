@@ -9,7 +9,7 @@ import java.util.ArrayList;
 class Main {
   public static void main(String[] args) throws Exception {
 
-    File sourceFile = new File("source_test.minijava");
+    File sourceFile = new File("right_code.minijava");
     byte[] fileInBytes = Files.readAllBytes(sourceFile.toPath());
     String fileContent = new String (fileInBytes);
     Lexer lexer = new Lexer(fileContent);

@@ -1,0 +1,23 @@
+class Main { // Minha classe
+    public static void main(String [] args){
+        int a;
+        int c;
+        if(a < c) {
+            System.out.println(a);
+        } else {
+            System.out.println(c);
+        }
+        System.out.println(a + c);
+    }
+}
+
+/*
+Meu comentario multi-linha
+*/
+
+class Myclass extends mySuperClass{
+    public int myMethod(int a, int d){
+        System.out.println(a + d);
+        return a + c;
+    }
+}
