@@ -6,10 +6,16 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
 
+// Entradas para o Lex & Yacc:
+// class Main { public static void main(String [] args) { System.out.println(1); } class Myclass extends mySuperClass{ int b; public int myMethod(int a, int d){ b = a + d; System.out.println(b); return b; } }
+// class Main { public static void main(String [] args){ int a; int c; if(a > c) { System.out.println(a); } else { System.out.println(c); } } }
+// class Main { public static void main(String [] args){ System.out.println(10); int a; System.out.println(a); } }
+// class Main { public static void main(String [] args) { int a; int c; if(a < c) { System.out.println(a); } else { System.out.println(c); } System.out.println(a + c); } } class Myclass extends mySuperClass { public int myMethod(int a, int d) { System.out.println(a + d); return a + c; } }
+
 class Main {
   public static void main(String[] args) throws Exception {
 
-    File sourceFile = new File("right_code.minijava");
+    File sourceFile = new File("erro3.minijava");
     byte[] fileInBytes = Files.readAllBytes(sourceFile.toPath());
     String fileContent = new String (fileInBytes);
     Lexer lexer = new Lexer(fileContent);
